@@ -69,4 +69,69 @@ All three pass the acceptance criterion (correct file). Two show the bag-of-word
 
 ---
 
-<!-- More tests added below as changes are made. -->
+
+## Chunking fix — merge short titles into the next paragraph
+
+**Change made:** Updated `chunk_text` so any very short chunk (< 5 words, likely a title) is merged into the paragraph that follows it. This targets the Test 1 problem where the title "Annual Leave Policy" was its own tiny chunk.
+
+---
+
+## Test 4 — Leave question (after fix)
+
+**Question:** "How many annual leave days do I have?"
+
+**Result:**
+- Source: `leave_policy.txt` ✅
+- Score: 0.506
+- Chunk returned: title **+ paragraph with "14 days"** ✅
+
+*(See screenshot/image4.png)*
+
+**Observation:** Fixed. The title merged into its paragraph, so the returned chunk now contains the actual answer.
+
+**Key insight:** The score dropped (0.577 → 0.506) even though the answer is now correct. The longer merged chunk dilutes the matching words, lowering the score. **A higher score does not mean a better answer** — the old high score was misleadingly high.
+
+---
+
+## Test 5 — VPN question (after fix)
+
+**Question:** "How do I set up the VPN?"
+
+**Result:**
+- Source: `it_setup.txt` ✅
+- Score: 0.516 (unchanged)
+- Chunk returned: 2nd paragraph (still) ⚠️
+
+*(See screenshot/image5.png)*
+
+**Observation:** Unchanged, and correctly so — neither VPN paragraph is a short title, so the merge doesn't apply here. This is a **different problem**: both paragraphs contain "VPN", and the 2nd has slightly more word overlap ("installing the VPN") with the question. Bag-of-words matches shared words, not meaning, so it can't tell the 1st paragraph is the better answer. This limitation needs real (neural) embeddings, not a chunking change.
+
+---
+
+## Test 6 — Shuttle question (after fix)
+
+**Question:** "What time does the shuttle leave?"
+
+**Result:**
+- Source: `meals_shuttle.txt` ✅
+- Score: 0.497
+- Chunk returned: correct paragraph (18.00) ✅
+
+*(See screenshot/image6.png)*
+
+**Observation:** Unchanged and still correct — the fix didn't affect or break it.
+
+---
+
+## Summary after fix
+
+| Question | File | Paragraph | Status |
+|----------|:---:|:---:|--------|
+| Leave | ✅ | ✅ | Fixed by chunking change |
+| VPN | ✅ | ⚠️ | Needs real embeddings (word vs. meaning) |
+| Shuttle | ✅ | ✅ | Was already correct |
+
+**Two distinct findings:**
+1. **Short-chunk / title problem** → solved with better chunking.
+2. **Word-matching vs. meaning problem** → not solvable by chunking; this is the core limit of bag-of-words embeddings and why the real project will use trained embedding models.
+

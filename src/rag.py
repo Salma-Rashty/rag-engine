@@ -22,13 +22,25 @@ for name in docs:
 
 
 def chunk_text(text):
-    """Split one document's text into chunks by paragraph (blank line = separator)."""
-    # Split wherever there's a blank line (two newlines = paragraph break)
-    raw_chunks = text.split("\n\n")
+    """Split text into chunks by paragraph, merging short title-like lines
+    into the paragraph that follows them."""
+    raw_chunks = [c.strip() for c in text.split("\n\n") if c.strip()]
 
-    # Clean up: strip whitespace and drop any empty pieces
-    chunks = [chunk.strip() for chunk in raw_chunks if chunk.strip()]
-    return chunks
+    merged = []
+    i = 0
+    while i < len(raw_chunks):
+        current = raw_chunks[i]
+
+        # If a chunk is very short (likely a title) and there's a next chunk,
+        # merge it INTO the next one.
+        if len(current.split()) < 5 and i + 1 < len(raw_chunks):
+            merged.append(current + " " + raw_chunks[i + 1])
+            i += 2                     # skip the next one, we already used it
+        else:
+            merged.append(current)
+            i += 1
+
+    return merged
 
 
 def chunk_documents(documents):
