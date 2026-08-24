@@ -1,0 +1,7 @@
+IT Setup Guide for New Employees
+
+On your first day, you will receive a company laptop and a set of login credentials. To get started, first connect to the company network and download the VPN client from the internal IT portal. The VPN is required to access internal tools when working remotely.
+
+After installing the VPN, set up your company email account using the credentials provided by the IT team. You should also install the team communication app and join the channels shared by your manager.
+
+If you experience any technical issues, contact the IT support desk by submitting a ticket through the help portal. Standard response time is within one business day.
